@@ -1,0 +1,298 @@
+{
+  "info": {
+    "name": "QuickBite \u2013 SEZG583 Scalable Services",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "Run requests in order. POST order sets orderId, POST delivery sets deliveryId."
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://127.0.0.1:8080"
+    },
+    {
+      "key": "orderId",
+      "value": ""
+    },
+    {
+      "key": "deliveryId",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "01 - GET Restaurants",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/catalog/restaurants",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "catalog",
+            "restaurants"
+          ]
+        }
+      }
+    },
+    {
+      "name": "02 - GET Restaurant Menu",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/catalog/restaurants/r1/menu",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "catalog",
+            "restaurants",
+            "r1",
+            "menu"
+          ]
+        }
+      }
+    },
+    {
+      "name": "03 - POST Order",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/orders/orders",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "orders",
+            "orders"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"customerId\": \"student-101\",\n  \"restaurantId\": \"r1\",\n  \"items\": [\n    {\n      \"menuItemId\": \"m1\",\n      \"quantity\": 2\n    },\n    {\n      \"menuItemId\": \"m3\",\n      \"quantity\": 1\n    }\n  ]\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Order accepted', function(){pm.response.to.have.status(201)});",
+              "const data=pm.response.json();",
+              "pm.collectionVariables.set('orderId',data.id);",
+              "pm.test('Calculated total is 2997 cents',function(){pm.expect(data.totalCents).to.eql(2997)});",
+              ""
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "04 - GET Orders",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/orders/orders?limit=20&offset=0",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "orders",
+            "orders?limit=20&offset=0"
+          ]
+        }
+      }
+    },
+    {
+      "name": "05 - GET Order By ID",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/orders/orders/{{orderId}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "orders",
+            "orders",
+            "{{orderId}}"
+          ]
+        }
+      }
+    },
+    {
+      "name": "06 - POST Delivery",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/deliveries/deliveries",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "deliveries",
+            "deliveries"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"orderId\": \"{{orderId}}\",\n  \"customerAddress\": \"BITS Pilani demo address\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Delivery accepted',function(){pm.response.to.have.status(201)});",
+              "pm.collectionVariables.set('deliveryId',pm.response.json().id);",
+              ""
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "07 - GET Delivery By ID",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/deliveries/deliveries/{{deliveryId}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "deliveries",
+            "deliveries",
+            "{{deliveryId}}"
+          ]
+        }
+      }
+    },
+    {
+      "name": "08 - POST Duplicate Delivery (409)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/deliveries/deliveries",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "deliveries",
+            "deliveries"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"orderId\": \"{{orderId}}\",\n  \"customerAddress\": \"BITS Pilani demo address\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Duplicate rejected',function(){pm.response.to.have.status(409)});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "09 - GET Gateway Health",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/health",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "health"
+          ]
+        }
+      }
+    }
+  ]
+}

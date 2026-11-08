@@ -1,0 +1,27 @@
+.env
+.venv/
+__pycache__/
+.pytest_cache/
+*.db
+data/
+*.pyc
+
+# Python
+.venv/
+__pycache__/
+.pytest_cache/
+*.pyc
+
+# Secrets
+.env
+.env.*
+!.env.example
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+
+# Local evidence and backups
+evidence/
+quickbite_load_test_backup.py

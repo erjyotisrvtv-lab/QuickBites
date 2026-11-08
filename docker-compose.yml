@@ -1,0 +1,90 @@
+name: quickbite
+services:
+  catalog:
+    build: ./services/catalog
+    environment:
+      PYTHONUNBUFFERED: '1'
+    healthcheck:
+      test: ['CMD','python','-c','import urllib.request; urllib.request.urlopen("http://127.0.0.1:3001/health", timeout=2)']
+      interval: 10s
+      timeout: 3s
+      retries: 5
+  orders:
+    build: ./services/orders
+    environment:
+      CATALOG_URL: http://catalog:3001
+      DATABASE_URL: postgresql+psycopg2://foodapp:${DB_PASSWORD:-local-dev-only}@orders-db:5432/orders
+    depends_on:
+      orders-db:
+        condition: service_healthy
+      catalog:
+        condition: service_healthy
+    healthcheck:
+      test: ['CMD','python','-c','import urllib.request; urllib.request.urlopen("http://127.0.0.1:3002/health", timeout=2)']
+      interval: 10s
+      timeout: 3s
+      retries: 5
+  delivery:
+    build: ./services/delivery
+    environment:
+      ORDERS_URL: http://orders:3002
+      DATABASE_URL: postgresql+psycopg2://foodapp:${DB_PASSWORD:-local-dev-only}@delivery-db:5432/delivery
+    depends_on:
+      delivery-db:
+        condition: service_healthy
+      orders:
+        condition: service_healthy
+    healthcheck:
+      test: ['CMD','python','-c','import urllib.request; urllib.request.urlopen("http://127.0.0.1:3003/health", timeout=2)']
+      interval: 10s
+      timeout: 3s
+      retries: 5
+  gateway:
+    build: ./services/gateway
+    environment:
+      CATALOG_URL: http://catalog:3001
+      ORDERS_URL: http://orders:3002
+      DELIVERY_URL: http://delivery:3003
+    ports:
+      - '127.0.0.1:8080:8080'
+    depends_on:
+      catalog:
+        condition: service_healthy
+      orders:
+        condition: service_healthy
+      delivery:
+        condition: service_healthy
+    healthcheck:
+      test: ['CMD','python','-c','import urllib.request; urllib.request.urlopen("http://127.0.0.1:8080/health", timeout=2)']
+      interval: 10s
+      timeout: 3s
+      retries: 5
+  orders-db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: orders
+      POSTGRES_USER: foodapp
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-local-dev-only}
+    volumes:
+      - orders-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL','pg_isready -U foodapp -d orders']
+      interval: 5s
+      timeout: 3s
+      retries: 10
+  delivery-db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: delivery
+      POSTGRES_USER: foodapp
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-local-dev-only}
+    volumes:
+      - delivery-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL','pg_isready -U foodapp -d delivery']
+      interval: 5s
+      timeout: 3s
+      retries: 10
+volumes:
+  orders-data:
+  delivery-data:

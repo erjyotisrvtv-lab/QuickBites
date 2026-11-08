@@ -1,0 +1,43 @@
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: catalog-pdb
+  namespace: food-delivery
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: catalog
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: orders-pdb
+  namespace: food-delivery
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: orders
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: delivery-pdb
+  namespace: food-delivery
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: delivery
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: gateway-pdb
+  namespace: food-delivery
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: gateway

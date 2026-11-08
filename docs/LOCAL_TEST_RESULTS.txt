@@ -1,0 +1,19 @@
+QuickBite independent execution evidence (local Python + SQLite only)
+Gateway uses test port 18080 because port 8080 was already occupied in this environment.
+No Docker, PostgreSQL, Minikube or GitHub execution is asserted.
+
+=== pytest unit/contract checks ===
+..........                                                               [100%]
+10 passed in 0.68s
+
+=== end-to-end smoke test ===
+PASS /health
+PASS /api/catalog/restaurants
+PASS /api/catalog/restaurants/r1/menu
+PASS /api/orders/health
+PASS /api/deliveries/health
+PASS create/list/read order; totalCents=2997
+PASS invalid menu item rejected
+PASS create/read delivery and 409 duplicate handling
+SUCCESS – all QuickBite smoke tests passed
+
