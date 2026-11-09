@@ -46,3 +46,57 @@ jobs:
       - name: Build Docker Image
         run: |
           docker build -t quickbite-${{ matrix.service }}:ci ./services/${{ matrix.service }}
+          name: QuickBite Microservices CI
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  test:
+    # Python testing steps
+
+  docker-build:
+    # Docker building steps
+
+  deploy:
+    name: Deploy QuickBite to Minikube
+    needs: [test, docker-build]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: [self-hosted, Windows, X64]
+
+    defaults:
+      run:
+        shell: pwsh
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Deploy to Kubernetes
+        run: |
+          $ErrorActionPreference = "Stop"
+          $env:Path = "$env:LOCALAPPDATA\Programs\DockerDesktop\resources\bin;C:\Program Files\Kubernetes\Minikube;$env:Path"
+
+          minikube status
+          kubectl get nodes
+
+          $tag = "${{ github.sha }}"
+
+          foreach ($svc in @("catalog","orders","delivery","gateway")) {
+            $image = "quickbite/${svc}:$tag"
+
+            docker build -t $image "./services/$svc"
+            if ($LASTEXITCODE -ne 0) { throw "Build failed: $svc" }
+
+            minikube image load $image
+            if ($LASTEXITCODE -ne 0) { throw "Image load failed: $svc" }
+
+            kubectl set image "deployment/$svc" "*=$image" -n food-delivery
+            if ($LASTEXITCODE -ne 0) { throw "Deployment update failed: $svc" }
+
+            kubectl rollout status "deployment/$svc" -n food-delivery --timeout=180s
+            if ($LASTEXITCODE -ne 0) { throw "Rollout failed: $svc" }
+          }
+
+          kubectl get deployments -n food-delivery
