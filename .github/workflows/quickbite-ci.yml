@@ -48,17 +48,6 @@ jobs:
           docker build -t quickbite-${{ matrix.service }}:ci ./services/${{ matrix.service }}
           name: QuickBite Microservices CI
 
-on:
-  push:
-    branches: [main]
-
-jobs:
-  test:
-    # Python testing steps
-
-  docker-build:
-    # Docker building steps
-
   deploy:
     name: Deploy QuickBite to Minikube
     needs: [test, docker-build]

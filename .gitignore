@@ -25,3 +25,5 @@ __pycache__/
 # Local evidence and backups
 evidence/
 quickbite_load_test_backup.py
+
+actions-runner/
