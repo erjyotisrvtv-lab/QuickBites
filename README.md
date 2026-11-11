@@ -1,5 +1,20 @@
 # QuickBite — BITS Pilani SEZG583 Scalable Services
 
+**Main project repository:** This repository contains the complete source for all four microservices. Clone this repository once; separate service repositories are not required to run the application.
+
+| Component | Source in this repository |
+|---|---|
+| Catalog | [services/catalog](services/catalog/) |
+| Orders | [services/orders](services/orders/) |
+| Delivery | [services/delivery](services/delivery/) |
+| Gateway and UI | [services/gateway](services/gateway/) |
+| Kubernetes manifests | [deploy/kubernetes](deploy/kubernetes/) |
+| Docker Compose | [docker-compose.yml](docker-compose.yml) |
+| Postman collection | [postman](postman/) |
+| Documentation | [docs](docs/) |
+
+Each service retains its own source, dependencies, Dockerfile and tests, so it can be built and deployed independently from this shared repository. The existing separate service repositories remain available; they are not required dependencies or Git submodules.
+
 **Scope:** Part 1 design; Part 2 four standalone independently deployable Python/FastAPI microservices; Part 3 Docker Compose, Minikube Kubernetes and Dashboard; submission documentation and demo instructions.
 
 **Start here:** `docs/STEP_BY_STEP_EXECUTION.md` (Windows/macOS commands). See `docs/ARCHITECTURE.md` and `docs/EVIDENCE_CHECKLIST.md`.
@@ -39,4 +54,4 @@ See step 6 of docs/STEP_BY_STEP_EXECUTION.md. Minikube/Docker must be installed 
 Reconstructed as an original educational implementation **based on supplied screenshots**, not a byte-exact copy of their source. The uploaded zip held screenshots rather than readable code files. Review and adapt the code before submission. No GitHub repository was created by this bundle; no screenshot or deployment result is represented as actual runtime evidence. Demonstrate and cite only your own work. Demo DB credentials must never be reused for any real deployment.
 
 ## Optional CI/CD (assignment extra)
-Each service directory contains `.github/workflows/ci.yml` for independent GitHub Actions tests and image build. Actual GitHub Actions runs require pushing the four repositories.
+The active repository workflow is [QuickBite Microservices CI](.github/workflows/quickbite-ci.yml): it runs the root automated tests and builds all four service images. Its deployment job requires the configured Windows self-hosted runner and an existing Minikube deployment. Workflow files inside individual service folders are retained for standalone repository use; GitHub Actions does not discover them as workflows in this repository.
